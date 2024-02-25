@@ -4,9 +4,8 @@ const app = express()
 const cors = require('cors')
 
 app.use(cors())
+
 app.use(express.static('dist'))
-
-
 
 // Custom format for morgan
 morgan.token('postData', (req) => {
@@ -43,9 +42,7 @@ let phoneBook = [
   }
 ]
 
-app.get('/', (request, response) => {
-  console.log('Hello from root')
-})
+
 
 
 

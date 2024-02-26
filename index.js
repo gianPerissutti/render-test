@@ -6,6 +6,9 @@ const mongoose = require('mongoose')
 
 const password = 'fullstack123'
 const url =`mongodb+srv://fullstack:${password}@fullstackphonebook.blytkvo.mongodb.net/?retryWrites=true&w=majority&appName=fullstackPhonebook`
+app.use(cors())
+app.use(express.static('dist'))
+
 mongoose.set('strictQuery',false)
 mongoose.connect(url)
 
@@ -16,9 +19,14 @@ const phoneSchema = new mongoose.Schema({
 
 const PhoneNumber = mongoose.model('phoneNumber', phoneSchema)
 
-app.use(cors())
+phoneSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
 
-app.use(express.static('dist'))
 
 // Custom format for morgan
 morgan.token('postData', (req) => {

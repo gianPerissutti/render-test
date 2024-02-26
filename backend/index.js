@@ -2,6 +2,19 @@ const express = require('express')
 const morgan = require('morgan') 
 const app = express()
 const cors = require('cors')
+const mongoose = require('mongoose')
+
+const password = 'fullstack123'
+const url =`mongodb+srv://fullstack:${password}@fullstackphonebook.blytkvo.mongodb.net/?retryWrites=true&w=majority&appName=fullstackPhonebook`
+mongoose.set('strictQuery',false)
+mongoose.connect(url)
+
+const phoneSchema = new mongoose.Schema({
+  name: String,
+  number: String,
+})
+
+const PhoneNumber = mongoose.model('phoneNumber', phoneSchema)
 
 app.use(cors())
 
@@ -52,7 +65,9 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-  response.json(phoneBook)
+  PhoneNumber.find({}).then(result => {
+  response.json(result)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {

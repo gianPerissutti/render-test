@@ -6,13 +6,8 @@ require('dotenv').config()
 
 const PhoneNumber = require('./models/phoneNumber')
 
-
-
 app.use(cors())
 app.use(express.static('dist'))
-
-
-
 
 
 // Custom format for morgan
@@ -26,30 +21,6 @@ morgan.token('postData', (req) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
 app.use(express.json())
-
-let phoneBook = [
-  {
-    "id": 1,
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": 2,
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": 3,
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": 4,
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  }
-]
-
 
 
 
@@ -106,7 +77,6 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPhone)
   })
 })
-
 
 
 const PORT = process.env.PORT

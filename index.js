@@ -1,16 +1,16 @@
 const express = require('express')
-const morgan = require('morgan') 
+const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
-const mongoose = require('mongoose')
+require('dotenv').config()
 
-const password = 'fullstack123'
-const url =`mongodb+srv://fullstack:${password}@fullstackphonebook.blytkvo.mongodb.net/?retryWrites=true&w=majority&appName=fullstackPhonebook`
+const PhoneNumber = require('./models/phoneNumber')
+
+
+
 app.use(cors())
 app.use(express.static('dist'))
 
-mongoose.set('strictQuery',false)
-mongoose.connect(url)
 
 const phoneSchema = new mongoose.Schema({
   name: String,
@@ -74,18 +74,14 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons', (request, response) => {
   PhoneNumber.find({}).then(result => {
-  response.json(result)
+    response.json(result)
   })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = phoneBook.find(person => person.id === id)
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  PhoneNumber.findById(request.params.id).then(phone => {
+    response.json(phone)
+  })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -94,40 +90,39 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end()
 })
 
-const generateId = () => {
-   const newId = Math.floor(Math.random() *9999999)
-   return newId
-}
-const handleError = ({body}) =>
-{
-  if (!body.name){
+
+
+const handleError = ({ body }) => {
+  if (!body.name) {
     return 'name missing'
   }
-  if (!body.number){
+  if (!body.number) {
     return 'number missing'
   }
-  if (phoneBook.find(person => person.name === body.name)){
+  if (phoneBook.find(person => person.name === body.name)) {
     return 'name must be unique'
   }
   return null
 }
+
 app.post('/api/persons', (request, response) => {
   const body = request.body
-  const error = handleError({body})
-  if (error !== null ){
-    return response.status(400).json({error}) //Bad request
+  const error = handleError({ body })
+  if (error !== null) {
+    return response.status(400).json({ error }) //Bad request
   }
-  const phone = {
-    id: generateId(),
+  const phone = new PhoneNumber({
     name: body.name,
     number: body.number
-  }
-  phoneBook = phoneBook.concat(phone)
-  response.json(phone)
+  })
+  phone.save().then(savedPhone => {
+    response.json(savedPhone)
+  })
 })
 
 
-const PORT = process.env.PORT || 3001
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

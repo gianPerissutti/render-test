@@ -12,20 +12,7 @@ app.use(cors())
 app.use(express.static('dist'))
 
 
-const phoneSchema = new mongoose.Schema({
-  name: String,
-  number: String,
-})
 
-const PhoneNumber = mongoose.model('phoneNumber', phoneSchema)
-
-phoneSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-  }
-})
 
 
 // Custom format for morgan

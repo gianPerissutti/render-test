@@ -1,9 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
-const cors = require('cors')
 require('dotenv').config()
+const cors = require('cors')
 
+ 
 const PhoneNumber = require('./models/phoneNumber')
 
 app.use(cors())
@@ -61,6 +62,7 @@ const handleError = ({ body }) => {
 }
 
 app.post('/api/persons', (request, response) => {
+  console.log('request.body', request.body)
   const body = request.body
   const error = handleError({ body })
   if (error !== null) {

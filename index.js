@@ -42,6 +42,7 @@ app.get('/api/persons/:id', (request, response) => {
   })
 })
 
+
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   phoneBook = phoneBook.filter(person => person.id !== id)
@@ -57,9 +58,7 @@ const handleError = ({ body }) => {
   if (!body.number) {
     return 'number missing'
   }
-  if (phoneBook.find(person => person.name === body.name)) {
-    return 'name must be unique'
-  }
+  
   return null
 }
 

@@ -23,8 +23,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :p
 app.use(express.json())
 
 
-
-
 app.get('/info', (request, response) => {
   let infoPhoneBook = `<p>Phonebook has info for ${phoneBook.length} people</p> ${new Date()}`;
   response.send(infoPhoneBook)

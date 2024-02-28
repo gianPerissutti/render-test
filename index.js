@@ -4,8 +4,9 @@ const app = express()
 require('dotenv').config()
 const cors = require('cors')
 
- 
+
 const PhoneNumber = require('./models/phoneNumber')
+const phoneNumber = require('./models/phoneNumber')
 
 app.use(cors())
 app.use(express.static('dist'))
@@ -35,9 +36,18 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
+
 app.get('/api/persons/:id', (request, response) => {
   PhoneNumber.findById(request.params.id).then(phone => {
-    response.json(phone)
+    if (phone) {
+      response.json(phone)
+    } else {
+      response.status(404).end()
+    }
+  })
+  .catch(error => {
+    console.log(error)
+    response.status(500).end()
   })
 })
 
@@ -57,7 +67,7 @@ const handleError = ({ body }) => {
   if (!body.number) {
     return 'number missing'
   }
-  
+
   return null
 }
 
@@ -80,5 +90,5 @@ app.post('/api/persons', (request, response) => {
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on puerto: ${PORT}`)
 })

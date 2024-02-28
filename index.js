@@ -6,7 +6,7 @@ const cors = require('cors')
 
 
 const PhoneNumber = require('./models/phoneNumber')
-const phoneNumber = require('./models/phoneNumber')
+
 
 app.use(cors())
 app.use(express.static('dist'))
@@ -19,6 +19,8 @@ morgan.token('postData', (req) => {
   }
   return ''
 })
+
+
 
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
@@ -37,7 +39,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   PhoneNumber.findById(request.params.id).then(phone => {
     if (phone) {
       response.json(phone)
@@ -46,16 +48,18 @@ app.get('/api/persons/:id', (request, response) => {
     }
   })
   .catch(error => {
-    console.log(error)
-    response.status(500).end()
+    next(error)
   })
 })
 
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  phoneBook = phoneBook.filter(person => person.id !== id)
-  response.status(204).end()
+  PhoneNumber.findByIdAndDelete(request.params.id).then(result => {
+    response.status(204).end()
+  }
+    )
+    .catch(error => next(error))
+
 })
 
 
@@ -76,7 +80,7 @@ app.post('/api/persons', (request, response) => {
   const body = request.body
   const error = handleError({ body })
   if (error !== null) {
-    return response.status(400).json({ error }) //Bad request
+    return response.status(400).json({ error }) 
   }
   const phone = new PhoneNumber({
     name: body.name,
@@ -88,7 +92,43 @@ app.post('/api/persons', (request, response) => {
 })
 
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const phoneToUpdate = {
+    name: body.name,
+    number: body.number
+  }
+
+
+  PhoneNumber.findByIdAndUpdate(request.params.id,phoneToUpdate,{ new: true })
+    .then(updatedPhone => 
+      response.json(updatedPhone))
+    .catch(error => next(error))
+})
+
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(398).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(398).json({ error: error.message })
+  }
+  next(error)
+}
+
+app.use(errorHandler)
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-  console.log(`Server running on puerto: ${PORT}`)
+  console.log(`Server running on port: ${PORT}`)
 })

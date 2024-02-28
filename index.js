@@ -28,8 +28,14 @@ app.use(express.json())
 
 
 app.get('/info', (request, response) => {
-  let infoPhoneBook = `<p>Phonebook has info for ${phoneBook.length} people</p> ${new Date()}`;
-  response.send(infoPhoneBook)
+
+  PhoneNumber.find({}).then(result => {
+
+    let infoPhoneBook = `<p>Phonebook has info for ${result.length} people</p> ${new Date()}`;
+    response.send(infoPhoneBook)
+  })
+    .catch(error => next(error))
+
 })
 
 app.get('/api/persons', (request, response) => {
@@ -47,9 +53,9 @@ app.get('/api/persons/:id', (request, response, next) => {
       response.status(404).end()
     }
   })
-  .catch(error => {
-    next(error)
-  })
+    .catch(error => {
+      next(error)
+    })
 })
 
 
@@ -57,7 +63,7 @@ app.delete('/api/persons/:id', (request, response) => {
   PhoneNumber.findByIdAndDelete(request.params.id).then(result => {
     response.status(204).end()
   }
-    )
+  )
     .catch(error => next(error))
 
 })
@@ -75,13 +81,11 @@ const handleError = ({ body }) => {
   return null
 }
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response,next) => {
   console.log('request.body', request.body)
   const body = request.body
-  const error = handleError({ body })
-  if (error !== null) {
-    return response.status(400).json({ error }) 
-  }
+
+ 
   const phone = new PhoneNumber({
     name: body.name,
     number: body.number
@@ -89,20 +93,19 @@ app.post('/api/persons', (request, response) => {
   phone.save().then(savedPhone => {
     response.json(savedPhone)
   })
+  .catch(error => next(error))
 })
 
 
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
-
   const phoneToUpdate = {
     name: body.name,
     number: body.number
   }
 
-
-  PhoneNumber.findByIdAndUpdate(request.params.id,phoneToUpdate,{ new: true })
-    .then(updatedPhone => 
+  PhoneNumber.findByIdAndUpdate(request.params.id, phoneToUpdate, { new: true, runValidators: true, context: 'query'})
+    .then(updatedPhone =>
       response.json(updatedPhone))
     .catch(error => next(error))
 })
@@ -120,10 +123,12 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
-    return response.status(398).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {
-    return response.status(398).json({ error: error.message })
+    return response.status(400).send({ error: 'malformatted id' })
   }
+  if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
+ 
   next(error)
 }
 

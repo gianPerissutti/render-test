@@ -14,7 +14,11 @@ mongoose.set('strictQuery',false)
 mongoose.connect(url)
 
 const phoneSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    minLength: 3
+  },
   number: String,
 })
 

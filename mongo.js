@@ -36,16 +36,16 @@ if(process.argv.length === 3) {
 }
 else if(process.argv.length == 5) {
 
-const phoneN = new PhoneNumber({
-  name: process.argv[3],
-  number: process.argv[4]
-})
+  const phoneN = new PhoneNumber({
+    name: process.argv[3],
+    number: process.argv[4]
+  })
 
 
-phoneN.save().then(result => {
-  console.log(`added ${result.name} number ${result.number} to phonebook`)
-  console.log(process.argv.length)
-  mongoose.connection.close()
+  phoneN.save().then(result => {
+    console.log(`added ${result.name} number ${result.number} to phonebook`)
+    console.log(process.argv.length)
+    mongoose.connection.close()
 
-})
+  })
 }
